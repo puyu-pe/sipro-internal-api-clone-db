@@ -22,6 +22,7 @@ abstract class AbstractTenantCloneAdapter implements TenantCloneAdapterInterface
         $dumpPath = $this->buildDumpPath($dumpDir, $dbName, $dto->projectCode);
 
         $this->runDump($dbName, $dumpPath);
+        $this->ensureDumpFileIsNotEmpty($dumpPath);
 
         $checksum = $this->checksum($dumpPath);
 
@@ -129,7 +130,7 @@ abstract class AbstractTenantCloneAdapter implements TenantCloneAdapterInterface
             2 => ['pipe', 'w'],
         ];
 
-        $process = proc_open(['/bin/sh', '-c', $command], $descriptorSpec, $pipes, null, $env);
+        $process = proc_open(['/bin/bash', '-o', 'pipefail', '-c', $command], $descriptorSpec, $pipes, null, $env);
 
         if (!is_resource($process)) {
             $this->throwProvisionFailed($errorMessage);
@@ -195,6 +196,18 @@ abstract class AbstractTenantCloneAdapter implements TenantCloneAdapterInterface
         );
 
         $this->runShellCommand($command, $this->dbPassword(), 'Failed to import tenant database.');
+    }
+
+    protected function ensureDumpFileIsNotEmpty(string $dumpPath): void
+    {
+        if (!is_file($dumpPath)) {
+            $this->throwProvisionFailed('Dump file was not created.');
+        }
+
+        $size = filesize($dumpPath);
+        if ($size === false || $size === 0) {
+            $this->throwProvisionFailed('Dump file is empty.');
+        }
     }
 
     abstract protected function resolveTenantDatabase(string $pathAppKey, string $payloadAppKey, string $projectCode): string;
