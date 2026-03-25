@@ -1,0 +1,16 @@
+{
+  "name": "puyu-pe/sipro-internal-api-clone-db",
+  "version": "0.1.0",
+  "description": "Shared clone/export/import utilities for SIPRO internal API adapters.",
+  "type": "library",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.2",
+    "puyu-pe/sipro-internal-api-core": "^0.1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "PuyuPe\\SiproInternalApiCloneDb\\": "src/"
+    }
+  }
+}
